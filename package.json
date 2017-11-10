@@ -1,0 +1,17 @@
+{
+  "name": "amazon-lambda",
+  "version": "1.0.0",
+  "description": "testing amazon lambda",
+  "main": "index.js",
+  "scripts": {
+    "build": "gulp",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.17.0",
+    "gulp": "^3.9.1",
+    "gulp-zip": "^4.0.0"
+  }
+}
