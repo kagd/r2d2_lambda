@@ -1,7 +1,29 @@
-const axios = require('axios');
-const basePath = 'https://us.api.battle.net';
 
-function formatProfile(data) {
+import D3Profile from './models/d3-profile';
+import axios, {
+  AxiosError,
+  AxiosResponse,
+} from 'axios';
+import * as firebase from 'firebase';
+import { Callback, Handler } from 'aws-lambda';
+
+const baseURL = 'https://us.api.battle.net';
+const instance = axios.create({
+  baseURL,
+});
+
+const config = {
+  apiKey: process.env.FIREBASE_API_KEY,
+  authDomain: "activerecord-firebase.firebaseapp.com",
+  databaseURL: "https://activerecord-firebase.firebaseio.com",
+  projectId: "activerecord-firebase",
+  storageBucket: "activerecord-firebase.appspot.com",
+  messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
+};
+const firebaseApp = firebase.initializeApp(config);
+const firebaseDatabase = firebaseApp.database();
+
+function formatProfile(data: D3Profile) {
   const profile = {
     lastHeroPlayedId: data.lastHeroPlayed,
     kills: {
@@ -25,7 +47,7 @@ function formatProfile(data) {
   return profile;
 }
 
-function errorHandler(callback, error) {
+function errorHandler(callback: Callback, error: AxiosError) {
   if (error.response) {
     // The request was made and the server responded with a status code
     // that falls out of the range of 2xx
@@ -45,15 +67,21 @@ function errorHandler(callback, error) {
   callback(error);
 }
 
-function successHandler(callback, response) {
-  const profile = formatProfile(response.data)
-  callback(null, profile);
+function successHandler(callback: Callback, response: AxiosResponse) {
+  const profile = formatProfile(response.data);
+  firebaseDatabase.ref('/d3/profile').set(profile)
+  .then(function(){
+    firebaseApp.delete().then(function(){
+      callback(null, {result: 'success'});
+    });
+  })
+  .catch(errorHandler.bind(null, callback));
 }
 
-exports.handler = function(event, context, callback) {
-  const path = `${basePath}/d3/profile/${process.env.BNET_TAG}/`;
+exports.handler = <Handler>function(event, context, callback) {
+  const path = `/d3/profile/${process.env.BNET_TAG}/`;
 
-  axios({
+  instance.request({
     method: 'get',
     url: path,
     params: {
