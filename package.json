@@ -4,24 +4,24 @@
   "description": "amazon lambda for R2D2",
   "main": "index.js",
   "scripts": {
-    "build": "webpack && npm run pack",
-    "pack": "node ./scripts/build.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "webpack",
+    "pack": "node ./scripts/pack.js",
+    "test": "node -r dotenv/config ./scripts/test.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "axios": "^0.17.0",
-    "firebase": "^4.6.2"
+    "firebase-admin": "^5.5.1"
   },
   "devDependencies": {
     "@types/aws-lambda": "^0.0.21",
     "@types/node": "^8.0.52",
+    "dotenv": "^4.0.0",
     "node-zip": "^1.1.1",
     "ts-loader": "^3.1.1",
     "tslint": "^5.8.0",
     "typescript": "^2.6.1",
-    "uglifyjs-webpack-plugin": "^1.0.1",
     "webpack": "^3.8.1"
   }
 }

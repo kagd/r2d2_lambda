@@ -4,23 +4,20 @@ import axios, {
   AxiosError,
   AxiosResponse,
 } from 'axios';
-import * as firebase from 'firebase';
+import * as admin from 'firebase-admin';
 import { Callback, Handler } from 'aws-lambda';
 
 const baseURL = 'https://us.api.battle.net';
 const instance = axios.create({
   baseURL,
 });
+const serviceAccount = require("./serviceAccountKey.json");
 
 const config = {
-  apiKey: process.env.FIREBASE_API_KEY,
-  authDomain: "activerecord-firebase.firebaseapp.com",
+  credential: admin.credential.cert(serviceAccount),
   databaseURL: "https://activerecord-firebase.firebaseio.com",
-  projectId: "activerecord-firebase",
-  storageBucket: "activerecord-firebase.appspot.com",
-  messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
 };
-const firebaseApp = firebase.initializeApp(config);
+const firebaseApp = admin.initializeApp(config);
 const firebaseDatabase = firebaseApp.database();
 
 function formatProfile(data: D3Profile) {
@@ -68,10 +65,14 @@ function errorHandler(callback: Callback, error: AxiosError) {
 }
 
 function successHandler(callback: Callback, response: AxiosResponse) {
+  console.log('success');
   const profile = formatProfile(response.data);
+  console.log('calling firebase set');
   firebaseDatabase.ref('/d3/profile').set(profile)
   .then(function(){
+    console.log('firebase set done');
     firebaseApp.delete().then(function(){
+      console.log('firebase app deleted');
       callback(null, {result: 'success'});
     });
   })
@@ -80,6 +81,7 @@ function successHandler(callback: Callback, response: AxiosResponse) {
 
 exports.handler = <Handler>function(event, context, callback) {
   const path = `/d3/profile/${process.env.BNET_TAG}/`;
+  console.log('path', path);
 
   instance.request({
     method: 'get',

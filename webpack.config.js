@@ -1,5 +1,4 @@
 const path = require('path');
-const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 
 module.exports = {
   entry: './src/index.ts',
@@ -8,18 +7,18 @@ module.exports = {
       {
         test: /\.tsx?$/,
         use: 'ts-loader',
-        exclude: /node_modules/,
+        // exclude: /node_modules/,
       },
     ],
   },
   resolve: {
-    extensions: [ '.tsx', '.ts', '.js' ]
+    mainFields: ["webpack", "main"],
+    extensions: [ '.tsx', '.ts', '.js', '.json' ],
   },
   output: {
     filename: 'index.js',
+    libraryTarget: 'commonjs',
     path: path.resolve(__dirname, 'dist'),
   },
-  plugins: [
-    new UglifyJSPlugin(),
-  ]
+  target: 'node',
 };
