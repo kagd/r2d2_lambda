@@ -7,6 +7,10 @@
     "module": "CommonJS",
     "target": "es2015",
     "allowJs": true,
-    "rootDir": ".."
-  }
+    "rootDir": "..",
+    "noUnusedLocals": true
+  },
+  "include": [
+    "src/**/*"
+  ]
 }
